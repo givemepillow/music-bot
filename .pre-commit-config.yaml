@@ -11,7 +11,7 @@ repos:
         name: pytest
         stages: [ commit ]
         types: [ python ]
-        entry: pytest
+        entry: poetry run pytest
         language: system
         pass_filenames: false
         always_run: true

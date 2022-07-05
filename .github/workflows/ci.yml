@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches: [ production ]
+  pull_request:
+    branches: [ production ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: testing
+        run: |
+          echo 'testing...'
+          echo 'testing completed'
