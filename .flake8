@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 100
+max-complexity = 10
+ignore = F401
+exclude =
+    __pycache__,
+    docs,
+    .*
