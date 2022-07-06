@@ -1,6 +1,5 @@
-import json
+import os
 from abc import abstractmethod
-from types import SimpleNamespace
 
 from loguru import logger
 from aiogram import Bot, Dispatcher
@@ -12,10 +11,8 @@ from .Singletone import SingletonABC
 
 class AbstractBotModel(SingletonABC):
 
-    def __init__(self, config_file_name='project.json'):
-        with open(config_file_name, "r") as file:
-            self.config = json.loads(file.read(), object_hook=lambda data: SimpleNamespace(**data))
-        self._bot = Bot(token=self.config.api.token)
+    def __init__(self):
+        self._bot = Bot(token=os.environ.get('BOT_TOKEN'))
         self._memory_storage = MemoryStorage()
         self._dispatcher = Dispatcher(self._bot, storage=self._memory_storage)
         self._dispatcher.middleware.setup(LoggingMiddleware())
