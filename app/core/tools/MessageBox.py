@@ -1,4 +1,5 @@
 from contextlib import suppress
+from typing import Optional
 
 from aiogram.types import Message
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageToDeleteNotFound
@@ -21,7 +22,7 @@ class MessageBox:
             cls._storage[user_id].append(message)
 
     @classmethod
-    def get(cls, user_id: int) -> Message | None:
+    def get(cls, user_id: int) -> Optional[Message]:
         if user_id in cls._storage and cls._storage[user_id]:
             return cls._storage[user_id].pop()
         else:
