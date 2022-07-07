@@ -58,6 +58,7 @@ class Searcher:
         self._last_page = 0
         self._initialized = True
         self._generator = self._search_generator(text)
+        self._results.clear()
 
     def next(self) -> list[Track]:
         """
