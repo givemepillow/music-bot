@@ -3,6 +3,7 @@
 и позволяющий ЛЕНИВО итерироваться по результатам запроса и MusicSearcher -
 хранит для каждого пользователя свой Searcher.
 """
+
 from aiovkmusic import Track, Music
 
 from app.utils.Singletone import Singleton
@@ -19,9 +20,9 @@ class Searcher:
     _pages: int
     _step: int
     _music: Music
-    _page: int = 0
-    _last_page: int = 0
-    _initialized: bool = False
+    _page: int
+    _last_page: int
+    _initialized: bool
 
     def _search_generator(self, text: str) -> iter:
         """
@@ -47,6 +48,9 @@ class Searcher:
         self._step = step
         self._pages = pages
         self._music = music
+        self._page = 0
+        self._last_page = 0
+        self._initialized = False
         self._results = []
 
     def __call__(self, text: str):
@@ -57,8 +61,20 @@ class Searcher:
         self._page = 0
         self._last_page = 0
         self._initialized = True
+        self._results.clear()
         self._generator = self._search_generator(text)
         self._results.clear()
+
+    def track(self, track_id: int) -> Track:
+        """
+        Позволяет получить аудиозапись по её id из последних найденных аудиозаписей.
+        :raises KeyError - если по указанно id нашлось подходящей аудиозаписи.
+        :param track_id: id аудиозаписи.
+        """
+        for track in self._results:
+            if track.id == track_id:
+                return track
+        raise KeyError("Аудиозаписи с данным id нет в результатах.")
 
     def next(self) -> list[Track]:
         """
