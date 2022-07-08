@@ -1,1 +1,1 @@
-from .MessageBox import MessageBox
+from .validator import validate_link
