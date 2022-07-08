@@ -49,16 +49,3 @@ async def music_list_navigation(callback_query: CallbackQuery, callback_data: Ca
             user_id=_user_id, callback_data=callback_data
         )
     )
-
-
-@dp.callback_query_handler(
-    SearchResultsMarkup.data.filter(action=SearchResultsMarkup.actions.select)
-)
-async def send_track(callback_query: CallbackQuery, callback_data: CallbackData):
-    """
-    Хендлер отправки выбранного трека.
-    :param callback_query: Callback Query
-    :param callback_data: Callback Data
-    """
-    _user_id = callback_query.from_user.id
-    # Отправка трека
