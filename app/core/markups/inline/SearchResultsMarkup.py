@@ -39,7 +39,7 @@ class _SearchResultsMarkup:
             formatted_time = strftime("%M:%S" if track.duration < 3600 else "%H:%M:%S", gmtime(track.duration))
             _text = f'{formatted_time} | {track.artist} – {track.title}'
             markup.add(InlineKeyboardButton(text=_text, callback_data=self._data.new(_Actions.select, track.id)))
-        if self._tracks:
+        if self._tracks and not len(self._tracks) < self._count:
             if self._current_page != 0 and self._current_page != self._pages - 1:
                 markup.add(
                     InlineKeyboardButton(
