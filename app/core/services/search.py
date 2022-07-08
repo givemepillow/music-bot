@@ -63,7 +63,6 @@ class Searcher:
         self._initialized = True
         self._results.clear()
         self._generator = self._search_generator(text)
-        self._results.clear()
 
     def track(self, track_id: int) -> Track:
         """
