@@ -1,10 +1,10 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 
+from app.core.extensions import MessageBox
 from app.core.loader import dp, music
 from app.core.markups.inline import *
 from app.core.services.search import *
-from app.core.tools import MessageBox
 
 searcher = MusicSearcher(music, 7, 5)
 
