@@ -132,4 +132,4 @@ dmypy.json
 .idea/
 
 # project config
-project.json
+session.json
