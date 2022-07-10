@@ -13,7 +13,8 @@ from app.core.tools.validator import validate_link
         ('vk.com', False),
         ('vk.com/', False),
         ('google.com', False),
-        ('google.com/lilnikky', False)
+        ('google.com/lilnikky', False),
+        ('hi.there', True)
     ]
 )
 @pytest.mark.asyncio

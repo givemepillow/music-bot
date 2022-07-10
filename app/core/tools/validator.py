@@ -1,17 +1,15 @@
-from urllib.parse import urlparse
-
 import aiohttp
-import validators
 
 
 async def validate_link(link: str):
-    if not link.startswith('https://') and not link.startswith('http://'):
+    if (link.startswith('https://vk.com') or link.startswith('http://vk.com')) and len(link) > 15:
+        pass
+    elif link.startswith('vk.com') and len(link) > 7:
         link = 'https://' + link
-    if not validators.url(link):
-        link = f'https://vk.com/{link.replace("https://", "")}'
-    parsed_link = urlparse(link)
-    if parsed_link.netloc != 'vk.com' or len(parsed_link.path) <= 1:
-        return False
+    elif link.isdigit():
+        link = f'https://vk.com/id{link}'
+    else:
+        link = f'https://vk.com/{link}'
 
     async with aiohttp.ClientSession() as session:
         async with session.get(link) as resp:
