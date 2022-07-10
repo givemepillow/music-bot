@@ -22,7 +22,10 @@ async def uploader(track: Track, music: Music, bot: Bot) -> str:
         audiofile = await file.read()
         sent_audio = await bot.send_audio(
             TARGET_CHAT_ID,
-            (track.fullname, audiofile)
+            audio=audiofile,
+            performer=track.artist,
+            title=track.title,
+            thumb=track.cover_url
         )
         file_id = sent_audio.audio.file_id
     await async_os.remove(track.path)
