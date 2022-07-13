@@ -1,15 +1,17 @@
+from aiogram import types
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 
+from app.core.extensions import MessageBox
 from app.core.loader import dp, music
 from app.core.markups.inline import *
 from app.core.services.search import *
-from app.core.tools import MessageBox
+from app.core.states import States
 
 searcher = MusicSearcher(music, 7, 5)
 
 
-@dp.message_handler()
+@dp.message_handler(state=States.searching, chat_type=[types.ChatType.PRIVATE])
 async def music_search(message: Message):
     """
     Хендлер для поиска музыки и вывода инлайн-меню со списком найденных треков.
@@ -35,7 +37,9 @@ async def music_search(message: Message):
 
 
 @dp.callback_query_handler(
-    SearchResultsMarkup.data.filter(action=[SearchResultsMarkup.actions.next, SearchResultsMarkup.actions.prev])
+    SearchResultsMarkup.data.filter(action=[SearchResultsMarkup.actions.next, SearchResultsMarkup.actions.prev]),
+    state=States.searching,
+    chat_type=[types.ChatType.PRIVATE]
 )
 async def music_list_navigation(callback_query: CallbackQuery, callback_data: CallbackData):
     """
