@@ -1,9 +1,12 @@
 import sys
+import warnings
 
 import loguru
 
 from app.core.handlers import dp as dispatcher
 from app.core.loader import bot_engine
+
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
 if __name__ == '__main__':
     loguru.logger.remove()
