@@ -1,6 +1,5 @@
 from aiogram import types
 from aiogram.types import Message, CallbackQuery
-from aiogram.utils.callback_data import CallbackData
 
 from app.core.extensions import MessageBox
 from app.core.loader import dp, music
@@ -41,7 +40,7 @@ async def music_search(message: Message):
     state=States.searching,
     chat_type=[types.ChatType.PRIVATE]
 )
-async def music_list_navigation(callback_query: CallbackQuery, callback_data: CallbackData):
+async def music_list_navigation(callback_query: CallbackQuery, callback_data: dict):
     """
     Хендлер навигации по списку найденных треков.
     :param callback_query: Callback Query

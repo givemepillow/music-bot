@@ -1,16 +1,17 @@
 from aiogram.types import CallbackQuery
-from aiogram.utils.callback_data import CallbackData
 
 from app.core.handlers.music_search import searcher
 from app.core.loader import dp, bot, music
 from app.core.markups.inline import SearchResultsMarkup
 from app.core.services import manager
+from app.core.states import States
 
 
 @dp.callback_query_handler(
-    SearchResultsMarkup.data.filter(action=SearchResultsMarkup.actions.select)
+    SearchResultsMarkup.data.filter(action=SearchResultsMarkup.actions.select),
+    state=States.searching
 )
-async def send_track(callback_query: CallbackQuery, callback_data: CallbackData):
+async def send_track(callback_query: CallbackQuery, callback_data: dict):
     """
     Хендлер отправки выбранного трека.
     :param callback_query: Callback Query
