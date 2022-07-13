@@ -1,6 +1,7 @@
 import os
 
 import aiofiles
+import loguru
 from aiofiles import os as async_os
 from aiogram import Bot
 from aiovkmusic import Track, Music
@@ -28,5 +29,6 @@ async def uploader(track: Track, music: Music, bot: Bot) -> str:
             thumb=track.cover_url
         )
         file_id = sent_audio.audio.file_id
+    loguru.logger.info(f"New audio uploaded: {track.fullname}.")
     await async_os.remove(track.path)
     return file_id
