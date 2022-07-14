@@ -1,0 +1,75 @@
+version: '3.9'
+services:
+  bot:
+    build: .
+    container_name: music-bot
+    image: music-bot:0.1.0
+    environment:
+      VK_LINK: ${VK_LINK}
+      VK_ACC: ${VK_ACC}
+      MEDIA_CHAT: ${MEDIA_CHAT}
+      BOT_TOKEN: ${BOT_TOKEN}
+      DB_URL: 'bot:deepdarkfantasy@database:5432/music'
+      WEBHOOK_HOST: ${WEBHOOK_HOST}
+      WEBHOOK_PATH: ${WEBHOOK_PATH}
+      WEBAPP_HOST: 0.0.0.0
+      WEBAPP_PORT: 2280
+    ports:
+      - '${PORT}:2280'
+    networks:
+      - music-bot-network
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && python3 -m app.core --mode ${MODE}"
+    restart: always
+    volumes:
+      - ./data/downloads:/bot/downloads
+  database:
+    image: postgres:13.7
+    container_name: music-bot-database
+    environment:
+      POSTGRES_DB: "music"
+      POSTGRES_USER: "bot"
+      POSTGRES_PASSWORD: "deepdarkfantasy"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=30"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "work_mem=64MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+      - "-c"
+      - "max_prepared_transactions=30"
+      - "-c"
+      - "random_page_cost=1.7"
+      - "-c"
+      - "temp_file_limit=1GB"
+      - "-c"
+      - "log_min_error_statement=INFO"
+      - "-c"
+      - "log_min_messages=FATAL"
+      - "-c"
+      - "log_statement=none"
+      - "-c"
+      - "log_destination=stderr"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U bot -d music" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 7s
+    restart: always
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - music-bot-network
+
+networks:
+  music-bot-network:
+    driver: bridge
