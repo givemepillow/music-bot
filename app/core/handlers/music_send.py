@@ -21,7 +21,5 @@ async def send_track(callback_query: CallbackQuery, callback_data: dict):
     await bot.send_chat_action(chat_id=_user_id, action='upload_audio')
     track_id = int(callback_data['track_id'])
     track = searcher[_user_id].track(track_id)
-
     file_id = await manager.get_file_id(track, music, bot)
     await callback_query.message.answer_audio(file_id)
-    await callback_query.answer()
