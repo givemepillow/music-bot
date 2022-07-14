@@ -52,3 +52,8 @@ async def music_list_navigation(callback_query: CallbackQuery, callback_data: di
             user_id=_user_id, callback_data=callback_data
         )
     )
+
+
+@dp.message_handler(chat_type=[types.ChatType.PRIVATE])
+async def start_handler(message: Message):
+    await message.answer('Ничего не понятно - может быть вы хотели найти какую-нибудь аудиозапись /start?')
