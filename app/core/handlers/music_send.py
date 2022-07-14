@@ -18,6 +18,7 @@ async def send_track(callback_query: CallbackQuery, callback_data: dict):
     :param callback_data: Callback Data
     """
     _user_id = callback_query.from_user.id
+    await bot.send_chat_action(chat_id=_user_id, action='upload_audio')
     track_id = int(callback_data['track_id'])
     track = searcher[_user_id].track(track_id)
 
