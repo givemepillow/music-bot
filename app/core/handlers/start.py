@@ -14,3 +14,9 @@ async def start_handler(message: Message):
              f'Чтобы найти аудиозапись, отправьте название песни или исполнителя боту.',
         parse_mode='HTML')
     await States.searching.set()
+
+
+@dp.message_handler(commands=['global', 'search'], state='*', chat_type=[types.ChatType.PRIVATE])
+async def global_search_commands(message: Message):
+    await message.answer(text='Поиск по <b>ВК</b>...', parse_mode='HTML')
+    await States.searching.set()
