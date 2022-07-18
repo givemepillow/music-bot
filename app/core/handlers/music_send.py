@@ -1,5 +1,6 @@
 from aiogram.types import CallbackQuery
 
+from app.core.handlers.local_search import local_searcher
 from app.core.handlers.music_search import searcher
 from app.core.loader import dp, bot, music
 from app.core.markups.inline import SearchResultsMarkup
@@ -9,7 +10,7 @@ from app.core.states import States
 
 @dp.callback_query_handler(
     SearchResultsMarkup.data.filter(action=SearchResultsMarkup.actions.select),
-    state=States.searching
+    state=[States.searching, States.local_searching]
 )
 async def send_track(callback_query: CallbackQuery, callback_data: dict):
     """
@@ -20,6 +21,9 @@ async def send_track(callback_query: CallbackQuery, callback_data: dict):
     _user_id = callback_query.from_user.id
     await bot.send_chat_action(chat_id=_user_id, action='upload_audio')
     track_id = int(callback_data['track_id'])
-    track = searcher[_user_id].track(track_id)
+    try:
+        track = searcher[_user_id].track(track_id)
+    except KeyError:
+        track = local_searcher[_user_id].track(track_id)
     file_id = await manager.get_file_id(track, music, bot)
     await callback_query.message.answer_audio(file_id)
