@@ -7,8 +7,8 @@ from sqlalchemy.dialects.postgresql import insert
 
 from app.core.services import LRUCache
 from app.core.services.upload import uploader
-from app.db.orm import Session
 from app.db import schema as sc
+from app.db.orm import Session
 
 cache = LRUCache(capacity=512)
 downloading = LRUCache(capacity=24)
@@ -51,6 +51,7 @@ async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
                     'file_id': file_id,
                     'title': track.title,
                     'artist': track.artist,
+                    'duration': track.duration,
                     'cover_url': track.cover_url,
                     'url': track.url
                 })
