@@ -3,12 +3,14 @@
 и позволяющий ЛЕНИВО итерироваться по результатам запроса и MusicSearcher -
 хранит для каждого пользователя свой Searcher.
 """
-
 from aiovkmusic import Track, Music
 
-from app.utils.Singletone import Singleton
-
 __all__ = ['MusicSearcher']
+
+from sqlalchemy import select
+
+from app.db.orm import Session
+from app.db import schema as sc
 
 
 class Searcher:
@@ -53,7 +55,7 @@ class Searcher:
         self._initialized = False
         self._results = []
 
-    def __call__(self, text: str):
+    async def __call__(self, text: str):
         """
         Принимает текстовый запрос на поиск и создаёт генератор для перебора результатов.
         :param text: текст с названием искомой аудиозаписи.
@@ -113,13 +115,76 @@ class Searcher:
             return self._results[:self._step]
 
 
-class MusicSearcher(Singleton):
+class LocalSearcher:
+    async def _search(self, text: str):
+        async with Session() as s:
+            result_rows = [dict(row) for row in (await s.execute(
+                select(sc.tracks).where((sc.tracks.c.artist + ' - ' + sc.tracks.c.title).ilike(f'%{text}%'))
+            )).all()]
+            self._results = [
+                Track(
+                    id=track['id'],
+                    owner_id=-1,
+                    artist=track['artist'],
+                    title=track['title'],
+                    duration=track['duration'],
+                    _covers=[track['cover_url']],
+                    url=track['url']
+                )
+                for track in result_rows
+            ]
+
+    def __init__(self, step: int, pages: int):
+        self._start = 0
+        self._end = step
+        self._step = step
+        self._pages = pages
+        self._initialized = False
+        self._results = []
+
+    async def __call__(self, text: str):
+        self._start = 0
+        self._end = self._step
+        self._initialized = True
+        await self._search(text)
+
+    def next(self) -> list[Track]:
+        self._start += self._step
+        self._end += self._step
+        return self._results[self._start:self._end]
+
+    def prev(self) -> list[Track]:
+        self._start -= self._step
+        self._end -= self._step
+        return self._results[self._start:self._end]
+
+    def first(self) -> list[Track]:
+        return self._results[0:self._step]
+
+    def track(self, track_id: int) -> Track:
+        """
+        Позволяет получить аудиозапись по её id из последних найденных аудиозаписей.
+        :raises KeyError - если по указанно id нашлось подходящей аудиозаписи.
+        :param track_id: id аудиозаписи.
+        """
+        for track in self._results:
+            if track.id == track_id:
+                return track
+        raise KeyError("Аудиозаписи с данным id нет в результатах.")
+
+    @property
+    def tracks_count(self):
+        return len(self._results)
+
+
+class MusicSearcher:
     """
     Данный класс хранит экземпляр Searcher для каждого user_id.
     """
     _searchers: dict = {}
+    _local_searchers: dict = {}
 
-    def __init__(self, music: Music, step: int = 5, pages: int = 5):
+    def __init__(self, music: Music = None, step: int = 5, pages: int = 5, local: bool = False):
         """
         :param music: экземпляр класса aiovkmusic.Music.
         :param step: кол-во треков на одном шаге.
@@ -128,6 +193,7 @@ class MusicSearcher(Singleton):
         self._step = step
         self._pages = pages
         self._music = music
+        self._local = local
 
     def __getitem__(self, user_id: int) -> Searcher:
         """
@@ -135,6 +201,11 @@ class MusicSearcher(Singleton):
         если его ещё нет.
         :param user_id: telegram id пользователя.
         """
-        if user_id not in self._searchers:
-            self._searchers[user_id] = Searcher(self._music, self._step, self._pages)
-        return self._searchers.get(user_id)
+        if not self._local:
+            if user_id not in self._searchers:
+                self._searchers[user_id] = Searcher(self._music, self._step, self._pages)
+            return self._searchers.get(user_id)
+        else:
+            if user_id not in self._local_searchers:
+                self._local_searchers[user_id] = LocalSearcher(self._step, self._pages)
+            return self._local_searchers.get(user_id)
