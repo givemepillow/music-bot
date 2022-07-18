@@ -5,7 +5,7 @@ from aiovkmusic import Music, VKSession
 
 from app.utils import WebhookModel, PollingModel
 
-__all__ = ['dp', 'bot_engine', 'bot', 'memory_storage', 'music']
+__all__ = ['dp', 'bot_engine', 'bot', 'memory_storage', 'session', 'music']
 
 parser = argparse.ArgumentParser("main.py")
 
