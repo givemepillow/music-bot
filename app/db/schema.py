@@ -22,7 +22,14 @@ tracks = Table(
     Column('file_id', String(100)),
     Column('artist', String(100), nullable=False),
     Column('title', String(100), nullable=False),
+    Column('duration', Integer),
     Column('url', String(250), nullable=False),
     Column('cover_url', String(250)),
     Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
+)
+
+users = Table(
+    'users', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('vk_id', Integer, nullable=False)
 )
