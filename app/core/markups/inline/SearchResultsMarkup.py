@@ -15,6 +15,7 @@ class _Actions:
     prev = 'prev'
     next = 'next'
     select = 'select'
+    back = 'back'
 
 
 class _SearchResultsMarkup:
@@ -27,7 +28,7 @@ class _SearchResultsMarkup:
         self._data = callback_data
         self._searcher_generator = searcher_generator
 
-    def build_markup(self, callback_data):
+    def build_markup(self, callback_data, back_button: bool):
         markup = InlineKeyboardMarkup(row_width=2)
         if callback_data is not None:
             match callback_data['action']:
@@ -37,7 +38,7 @@ class _SearchResultsMarkup:
                     self._prev()
         for track in self._tracks:
             formatted_time = strftime("%M:%S" if track.duration < 3600 else "%H:%M:%S", gmtime(track.duration))
-            _text = f'{formatted_time} | {track.artist} – {track.title}'
+            _text = emojize(f':musical_note: {track.artist} – {track.title} | {formatted_time} |')
             markup.add(InlineKeyboardButton(text=_text, callback_data=self._data.new(_Actions.select, track.id)))
         if not self._tracks:
             return markup
@@ -72,6 +73,13 @@ class _SearchResultsMarkup:
                 )
             )
         markup.add(*buttons)
+        if back_button:
+            markup.add(
+                InlineKeyboardButton(
+                    text=emojize('Назад :leftwards_arrow_with_hook:'),
+                    callback_data=self._data.new(_Actions.back, 0)
+                )
+            )
         return markup
 
     def _next(self):
@@ -108,5 +116,5 @@ class SearchResultsMarkup:
             loguru.logger.warning(str(err))
 
     @classmethod
-    def markup(cls, user_id, callback_data=None):
-        return cls._storage[user_id].build_markup(callback_data)
+    def markup(cls, user_id, back_button: bool = False, callback_data=None):
+        return cls._storage[user_id].build_markup(callback_data, back_button)
