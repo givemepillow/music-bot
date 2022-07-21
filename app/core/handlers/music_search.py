@@ -12,7 +12,7 @@ from app.core.states import States
 async def music_search(message: Message):
     """
     Хендлер для поиска музыки и вывода инлайн-меню со списком найденных треков.
-    :param message: поисковой запрос
+    :param message: поисковой запрос.
     """
     _user_id = message.from_user.id
     await MessageBox.delete_last(_user_id)
@@ -38,7 +38,7 @@ async def music_search(message: Message):
 
 @dp.callback_query_handler(
     SearchResultsMarkup.data.filter(action=[SearchResultsMarkup.actions.next, SearchResultsMarkup.actions.prev]),
-    state=[States.searching, States.local_searching],
+    state=[States.searching, States.local_searching, States.user_audios, States.playlist_tracks],
     chat_type=[types.ChatType.PRIVATE]
 )
 async def music_list_navigation(callback_query: CallbackQuery, callback_data: dict):
@@ -47,14 +47,20 @@ async def music_list_navigation(callback_query: CallbackQuery, callback_data: di
     :param callback_query: Callback Query
     :param callback_data: Callback Data
     """
-    _user_id = callback_query.from_user.id
     await callback_query.message.edit_reply_markup(
         reply_markup=SearchResultsMarkup.markup(
-            user_id=_user_id, callback_data=callback_data
+            user_id=callback_query.from_user.id, callback_data=callback_data
         )
     )
 
 
 @dp.message_handler(chat_type=[types.ChatType.PRIVATE])
 async def start_handler(message: Message):
-    await message.answer('Ничего не понятно - может быть вы хотели найти какую-нибудь аудиозапись /start?')
+    """
+    Хендлер запуска бота.
+    :param message: сообщение пользователя.
+    """
+    await message.answer(
+        text='Ничего не понятно – может быть вы хотели найти какую-нибудь аудиозапись <b>/start</b>?',
+        parse_mode='HTML'
+    )
