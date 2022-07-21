@@ -1,3 +1,7 @@
+"""
+Данный модуль содержит класс, который обеспечивает хранение
+объектов Music для каждого Telegram-пользователя.
+"""
 from aiovkmusic import Music
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
@@ -8,15 +12,23 @@ from app.db.orm import Session
 
 
 class UserStorage:
+    """
+    Класс, обеспечивающий хранение экземпляра класса Music
+    для каждого Telegram-пользователя в кэш-хранилище и в БД,
+    а также их получаение.
+    """
     _storage: dict[int: Music] = {}
 
     @classmethod
-    async def put_music(cls, vk_user: str | int, tg_user_id: int):
-        # Создаем экземпляр класса Music
+    async def put_music(cls, vk_user: str, tg_user_id: int):
+        """
+        Получает VK ID и Telegram ID пользователя
+        и записывает его в кэш и в БД.
+        :param vk_user: ID пользователя в VK.
+        :param tg_user_id: ID пользователя в Telegram.
+        """
         music = Music(user=vk_user, session=session)
-        # Если его нет в хранилище, то добавляем
-        if tg_user_id not in cls._storage:
-            cls._storage[tg_user_id] = music
+        cls._storage[tg_user_id] = music
         async with Session() as s:
             async with s.begin():
                 insert_user_stmt = insert(sc.users).values({
@@ -32,12 +44,17 @@ class UserStorage:
 
     @classmethod
     async def get_music(cls, user_id: int) -> Music | None:
+        """
+        Возвращает объект класса Music
+        для конкретного Telegram-пользователя.
+        :param user_id: ID пользователя в Telegram.
+        """
         if user_id in cls._storage:
             return cls._storage[user_id]
         async with Session() as s:
-            vk_user = (await s.execute(
+            vk_user = str((await s.execute(
                 select(sc.users.c.vk_id).where(sc.users.c.id == user_id)
-            )).scalar()
+            )).scalar())
             # Если бот был перезапущен и в хранилище нет объекта музыки, а в БД есть
             if vk_user:
                 music = Music(user=vk_user, session=session)
