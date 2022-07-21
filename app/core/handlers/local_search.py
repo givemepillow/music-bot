@@ -1,5 +1,6 @@
 from math import ceil
 
+from aiogram import types
 from aiogram.types import Message
 
 from app.core.extensions import MessageBox
@@ -9,14 +10,13 @@ from app.core.markups.inline import SearchResultsMarkup
 from app.core.states import States
 
 
-@dp.message_handler(commands='local', state='*')
-async def local_search_command(message: Message):
-    await message.answer(text='Поиск треков по сохраненным в базе данных...')
-    await States.local_searching.set()
-
-
-@dp.message_handler(state=States.local_searching)
+@dp.message_handler(state=States.local_searching, chat_type=[types.ChatType.PRIVATE])
 async def local_search(message: Message):
+    """
+    Хендлер для поиска уже загруженной музыки в базе данных
+    и вывода инлайн-меню со списком найденных треков.
+    :param message: поисковой запрос.
+    """
     _user_id = message.from_user.id
     await MessageBox.delete_last(_user_id)
 
