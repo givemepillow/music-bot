@@ -56,7 +56,7 @@ class UserStorage:
                 select(sc.users.c.vk_id).where(sc.users.c.id == user_id)
             )).scalar())
             # Если бот был перезапущен и в хранилище нет объекта музыки, а в БД есть
-            if vk_user:
+            if vk_user != 'None':
                 music = Music(user=vk_user, session=session)
                 cls._storage[user_id] = music
                 return music

@@ -50,9 +50,15 @@ async def profile_command_handler(message: Message):
     """
     _tg_user_id = message.from_user.id
     _music = await UserStorage.get_music(_tg_user_id)
-    _vk_user_id = _music.user_id
-    await show_profile(_vk_user_id, message)
-    await States.profile.set()
+    if _music:
+        _vk_user_id = _music.user_id
+        await show_profile(_vk_user_id, message)
+        await States.profile.set()
+    else:
+        await message.answer(
+            text='Для доступа к меню профиля установите ссылку на VK: <b>/link</b>',
+            parse_mode='HTML'
+        )
 
 
 @dp.message_handler(commands='local', state='*', chat_type=[types.ChatType.PRIVATE])
