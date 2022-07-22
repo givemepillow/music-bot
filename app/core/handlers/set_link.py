@@ -30,9 +30,9 @@ async def set_link(message: Message):
             await UserStorage.put_music(vk_user=link, tg_user_id=user_id)
             _user_id = _music.user_id
             await message.answer(text=f'Отлично! Ссылка <b>{link}</b> установлена.', parse_mode='HTML')
+            await MessageBox.delete_last(user_id)
             await show_profile(_user_id, message)
             await States.profile.set()
     except NonExistentUser:
         await message.answer(text='Ссылка имеет неверный формат или страница не найдена!\nПопробуйте еще раз.')
-    finally:
         await MessageBox.delete_last(user_id)
