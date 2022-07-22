@@ -49,7 +49,7 @@ class _PlaylistsMarkup:
                 )
             )
         message = f'Плейлисты <b>{self._start + 1}-' \
-                  f'{self._end if self._end != len(self._playlists) + 2 else len(self._playlists)}</b> ' \
+                  f'{self._end if self._end < len(self._playlists) else len(self._playlists)}</b> ' \
                   f'из <b>{len(self._playlists)}</b>:'
         return markup, message
 
