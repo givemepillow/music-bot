@@ -41,3 +41,4 @@ async def send_track(callback_query: CallbackQuery, callback_data: dict, state: 
         track = playlist_tracks_searcher[_user_id].track(track_id)
     file_id = await manager.get_file_id(track, music, bot)
     await callback_query.message.answer_audio(file_id)
+    await callback_query.answer()
