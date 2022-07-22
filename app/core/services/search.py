@@ -149,8 +149,8 @@ class PlaylistTracksSearcher(Searcher):
     def _search_generator(self, playlist: Playlist) -> iter:
         for i in range(0, self._step * self._pages, self._step):
             try:
-                results = self._music.playlist_tracks(playlist=playlist)
-                yield results[i:i + self._step]
+                results = self._music.playlist_tracks(playlist=playlist, count=self._step, offset=i)
+                yield results
                 if len(results) < self._step:
                     break
             except StopIteration:
