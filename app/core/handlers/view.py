@@ -16,7 +16,6 @@ from app.core.states import States
     chat_type=[types.ChatType.PRIVATE]
 )
 async def view(message: Message, state: FSMContext):
-    print("VIEW")
     _user_id = message.from_user.id
     await MessageBox.delete_last(_user_id)
     current_state = await state.get_state()
@@ -117,7 +116,6 @@ async def playlist_tracks(callback_query: CallbackQuery, callback_data: dict):
     chat_type=[types.ChatType.PRIVATE]
 )
 async def music_navigation(callback_query: CallbackQuery, callback_data: dict, state: FSMContext):
-    print('NAV')
     current_state = await state.get_state()
     await callback_query.message.edit_reply_markup(
         reply_markup=ResultsMarkup.markup(
@@ -126,20 +124,3 @@ async def music_navigation(callback_query: CallbackQuery, callback_data: dict, s
             back_button=current_state == States.playlist_tracks.state
         )
     )
-
-
-# @dp.callback_query_handler(
-#     ResultsMarkup.data.filter(action=[
-#         ResultsMarkup.actions.next, ResultsMarkup.actions.prev,
-#     ]),
-#     state=[States.playlists],
-#     chat_type=[types.ChatType.PRIVATE]
-# )
-# async def playlists_navigation(callback_query: CallbackQuery, callback_data: dict):
-#     await callback_query.message.edit_reply_markup(
-#         reply_markup=ResultsMarkup.markup(
-#             user_id=callback_query.from_user.id,
-#             callback_data=callback_data,
-#             back_button=False
-#         )
-#     )
