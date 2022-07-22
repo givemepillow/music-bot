@@ -20,3 +20,7 @@ All notable changes to this project will be documented in this file.
 ## 0.2.1
 
 - Мелкие исправления.
+
+## 0.2.2
+
+- Рефакторинг.
