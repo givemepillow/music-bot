@@ -1,13 +1,14 @@
 from dataclasses import dataclass
-from time import strftime, gmtime
+from typing import Callable
 
 import loguru
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.emoji import emojize
-from aiovkmusic import Track
 
-__all__ = ['SearchResultsMarkup']
+__all__ = ['ResultsMarkup']
+
+from app.core.services import Viewer
 
 
 @dataclass(frozen=True)
@@ -18,15 +19,16 @@ class _Actions:
     back = 'back'
 
 
-class _SearchResultsMarkup:
+class _ResultsMarkup:
 
-    def __init__(self, tracks: list[Track], count: int, pages: int, callback_data: CallbackData, searcher_generator):
-        self._count: int = count
+    def __init__(self, step: int, pages: int, callback_data: CallbackData, viewer: Viewer, description: Callable):
+        self._count: int = step
         self._current_page: int = 0
         self._pages: int = pages
-        self._tracks: list[Track] = tracks
+        self._items = viewer.next()
         self._data = callback_data
-        self._searcher_generator = searcher_generator
+        self._generator = viewer
+        self._description = description
 
     def build_markup(self, callback_data, back_button: bool):
         markup = InlineKeyboardMarkup(row_width=2)
@@ -36,12 +38,13 @@ class _SearchResultsMarkup:
                     self._next()
                 case _Actions.prev:
                     self._prev()
-        for track in self._tracks:
-            formatted_time = strftime("%M:%S" if track.duration < 3600 else "%H:%M:%S", gmtime(track.duration))
-            _text = emojize(f':musical_note: {track.artist} – {track.title} | {formatted_time} |')
-            markup.add(InlineKeyboardButton(text=_text, callback_data=self._data.new(_Actions.select, track.id)))
-        if not self._tracks:
-            return markup
+        for item in self._items:
+            markup.add(InlineKeyboardButton(text=self._description(item),
+                                            callback_data=self._data.new(_Actions.select, item.id)))
+        if not self._items:
+            if self._current_page == 0:
+                return markup
+            markup.add(InlineKeyboardButton(text='А всё, больше ничего нет...', callback_data='_'))
         buttons = []
         if self._current_page > 0:
             buttons.append(
@@ -58,7 +61,7 @@ class _SearchResultsMarkup:
                 )
             )
 
-        if self._current_page < self._pages - 1 and len(self._tracks) >= self._count:
+        if self._current_page < self._pages - 1 and len(self._items) >= self._count:
             buttons.append(
                 InlineKeyboardButton(
                     text=emojize(':arrow_right:'),
@@ -83,29 +86,29 @@ class _SearchResultsMarkup:
         return markup
 
     def _next(self):
-        self._tracks = self._searcher_generator.next()
+        self._items = self._generator.next()
         if self._current_page != self._pages - 1:
             self._current_page += 1
 
     def _prev(self):
-        self._tracks = self._searcher_generator.prev()
+        self._items = self._generator.prev()
         if self._current_page != 0:
             self._current_page -= 1
 
 
-class SearchResultsMarkup:
-    _storage: dict[int, _SearchResultsMarkup] = dict()
-    data = CallbackData('tracks', 'action', 'track_id')
+class ResultsMarkup:
+    _storage: dict[int, _ResultsMarkup] = dict()
+    data = CallbackData('tracks', 'action', 'item_id')
     actions = _Actions()
 
     @classmethod
-    def setup(cls, tracks: list[Track], searcher_generator, user_id: int, count: int = 7, pages: int = 5):
-        cls._storage[user_id] = _SearchResultsMarkup(
-            tracks=tracks,
-            count=count,
-            pages=pages,
+    def setup(cls, viewer: Viewer, user_id: int, description: Callable):
+        cls._storage[user_id] = _ResultsMarkup(
+            step=viewer.step,
+            pages=viewer.pages,
             callback_data=cls.data,
-            searcher_generator=searcher_generator
+            viewer=viewer,
+            description=description
         )
 
     @classmethod

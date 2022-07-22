@@ -1,54 +1,27 @@
-"""
-Модуль с функциями-шаблонами, которые используются в нескольких хендлерах
-"""
-from aiogram.types import Message
+from time import strftime, gmtime
 
-from app.core.extensions import MessageBox
-from app.core.handlers.base import playlists
-from app.core.loader import bot
-from app.core.markups.inline import UserProfileMarkup, PlaylistsMarkup
+from aiogram.dispatcher import FSMContext
+from aiogram.utils.emoji import emojize
+
 from app.core.states import States
 
 
-async def show_profile(vk_user_id: int, message: Message):
-    """
-    Функция для отображения профиля пользователя.
-    :param vk_user_id: ID пользователя в VK.
-    :param message: сообщение пользователя.
-    """
-    _message = await message.answer(
-        text=f'VK ID: <b>{vk_user_id}</b>',
-        parse_mode='HTML',
-        reply_markup=UserProfileMarkup.markup()
-    )
-    MessageBox.put(_message, message.from_user.id)
+def search_message_builder(query: str, state: FSMContext, empty: bool):
+    if not empty:
+        _text = f'Треки по запросу <b>«{query}»</b>:'
+    else:
+        _text = f'По запросу <b>«{query}»</b> ничего не найдено :('
+    if state == States.global_searching.state:
+        _text += '\nНе нашли, что искали? Попробуйте локальный поиск – /local'
+    else:
+        _text += '\nНе нашли, что искали? Попробуйте поиск по музыке ВК – /global'
+    return _text
 
 
-async def show_playlists(tg_user_id: int):
-    """
-    Функция для отображения плейлистов пользователя.
-    :param tg_user_id: ID пользователя в Telegram.
-    """
-    PlaylistsMarkup.setup(
-        playlists=await playlists(tg_user_id),
-        user_id=tg_user_id,
-        count=7
-    )
+def track_description(track):
+    formatted_time = strftime("%M:%S" if track.duration < 3600 else "%H:%M:%S", gmtime(track.duration))
+    return emojize(f':musical_note: {track.artist} – {track.title} | {formatted_time} |')
 
-    markup, text = PlaylistsMarkup.markup(user_id=tg_user_id)
 
-    _message = await bot.send_message(
-        chat_id=tg_user_id,
-        text=text,
-        reply_markup=markup,
-        parse_mode='HTML'
-    )
-    await bot.send_message(
-        chat_id=tg_user_id,
-        text='Чтобы вернуться к поиску, используйте следующие команды:\n'
-             '  <b>• /global</b> – для поиска по ВК\n'
-             '  <b>• /local</b> – для поиска по базе данных\n',
-        parse_mode='HTML'
-    )
-    MessageBox.put(_message, tg_user_id)
-    await States.playlists.set()
+def playlist_description(playlist):
+    return emojize(f':musical_notes: {playlist.title}')

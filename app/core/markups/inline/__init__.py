@@ -1,3 +1,2 @@
-from .PlaylistsMarkup import PlaylistsMarkup
-from .SearchResultsMarkup import SearchResultsMarkup
+from .ResultsMarkup import ResultsMarkup
 from .UserProfileMarkup import UserProfileMarkup
