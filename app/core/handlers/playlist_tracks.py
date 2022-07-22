@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.types import CallbackQuery
 
+from app.core.extensions import MessageBox
 from app.core.handlers.base import playlists
 from app.core.handlers.templates import show_playlists
 from app.core.loader import bot, dp
@@ -23,6 +24,7 @@ async def playlist_tracks(callback_query: CallbackQuery, callback_data: dict):
     """
     await callback_query.answer()
     _user_id = callback_query.from_user.id
+    await MessageBox.delete_last(_user_id)
     _music = await UserStorage.get_music(user_id=_user_id)
 
     playlist_id = int(callback_data['playlist_id'])
@@ -54,6 +56,7 @@ async def playlist_tracks(callback_query: CallbackQuery, callback_data: dict):
              '  <b>• /local</b> – для поиска по базе данных\n',
         parse_mode='HTML'
     )
+    MessageBox.put(_message, _user_id)
     await States.playlist_tracks.set()
 
 
@@ -85,4 +88,5 @@ async def back_from_playlist_tracks(callback_query: CallbackQuery):
     """
     await callback_query.answer()
     user_id = callback_query.from_user.id
+    await MessageBox.delete_last(user_id)
     await show_playlists(user_id)

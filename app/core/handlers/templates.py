@@ -3,6 +3,7 @@
 """
 from aiogram.types import Message
 
+from app.core.extensions import MessageBox
 from app.core.handlers.base import playlists
 from app.core.loader import bot
 from app.core.markups.inline import UserProfileMarkup, PlaylistsMarkup
@@ -15,11 +16,12 @@ async def show_profile(vk_user_id: int, message: Message):
     :param vk_user_id: ID пользователя в VK.
     :param message: сообщение пользователя.
     """
-    await message.answer(
+    _message = await message.answer(
         text=f'VK ID: <b>{vk_user_id}</b>',
         parse_mode='HTML',
         reply_markup=UserProfileMarkup.markup()
     )
+    MessageBox.put(_message, message.from_user.id)
 
 
 async def show_playlists(tg_user_id: int):
@@ -35,7 +37,7 @@ async def show_playlists(tg_user_id: int):
 
     markup, text = PlaylistsMarkup.markup(user_id=tg_user_id)
 
-    await bot.send_message(
+    _message = await bot.send_message(
         chat_id=tg_user_id,
         text=text,
         reply_markup=markup,
@@ -48,4 +50,5 @@ async def show_playlists(tg_user_id: int):
              '  <b>• /local</b> – для поиска по базе данных\n',
         parse_mode='HTML'
     )
+    MessageBox.put(_message, tg_user_id)
     await States.playlists.set()

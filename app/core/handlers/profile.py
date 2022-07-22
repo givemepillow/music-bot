@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.types import CallbackQuery, Message
 
+from app.core.extensions import MessageBox
 from app.core.handlers.templates import show_playlists
 from app.core.loader import dp, bot
 from app.core.markups.inline import SearchResultsMarkup
@@ -17,6 +18,7 @@ async def profile_buttons(callback_query: CallbackQuery):
     """
     await callback_query.answer()
     tg_user_id = callback_query.from_user.id
+    await MessageBox.delete_last(tg_user_id)
 
     if callback_query.data == 'change':
         await bot.send_message(chat_id=tg_user_id, text='Введите ссылку на страницу (или ID):')
