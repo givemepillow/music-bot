@@ -16,3 +16,7 @@ All notable changes to this project will be documented in this file.
 - Профиль с установкой ссылки на ВК.
 - Аудио пользователя из ВК.
 - Плейлисты пользователя из ВК.
+
+## 0.2.1
+
+- Мелкие исправления.
