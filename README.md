@@ -1,6 +1,8 @@
-# music-bot
+# Бот с музыкой из ВК
 
 [![CI](https://github.com/kirilllapushinskiy/music-bot/actions/workflows/ci.yml/badge.svg?branch=production)](https://github.com/kirilllapushinskiy/music-bot/actions/workflows/ci.yml)
+
+👉 [Музыкальная возня](https://t.me/MusicVoznyaBot) – пример реализации.
 
 [История изменений](docs/CHANGES.md)
 
