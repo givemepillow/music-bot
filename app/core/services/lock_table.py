@@ -21,7 +21,7 @@ class LockTable:
 
     def __delitem__(self, key):
         self.links_count[key] -= 1
-        if self.links_count == 0:
+        if self.links_count[key] == 0:
             del self.locks[key]
 
     def __contains__(self, item):
