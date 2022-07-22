@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from app.core.extensions import MessageBox
@@ -41,15 +42,19 @@ async def music_search(message: Message):
     state=[States.searching, States.local_searching, States.user_audios, States.playlist_tracks],
     chat_type=[types.ChatType.PRIVATE]
 )
-async def music_list_navigation(callback_query: CallbackQuery, callback_data: dict):
+async def music_list_navigation(callback_query: CallbackQuery, callback_data: dict, state: FSMContext):
     """
     Хендлер навигации по списку найденных треков.
+    :param state: текущее состояние бота.
     :param callback_query: Callback Query
     :param callback_data: Callback Data
     """
+    current_state = await state.get_state()
     await callback_query.message.edit_reply_markup(
         reply_markup=SearchResultsMarkup.markup(
-            user_id=callback_query.from_user.id, callback_data=callback_data
+            user_id=callback_query.from_user.id,
+            callback_data=callback_data,
+            back_button=True if current_state == 'States:playlist_tracks' else False
         )
     )
 
