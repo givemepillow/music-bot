@@ -17,10 +17,11 @@ from app.core.states import States
 )
 async def playlist_tracks(callback_query: CallbackQuery, callback_data: dict):
     """
-        Хендлер для вывода инлайн-меню со списком треков из выбранного плейлиста.
-        :param callback_data: Callback Data
-        :param callback_query: Callback Query
-        """
+    Хендлер для вывода инлайн-меню со списком треков из выбранного плейлиста.
+    :param callback_data: Callback Data
+    :param callback_query: Callback Query
+    """
+    await callback_query.answer()
     _user_id = callback_query.from_user.id
     _music = await UserStorage.get_music(user_id=_user_id)
 
