@@ -9,7 +9,7 @@ from app.db import schema as sc
 from app.db.orm import Session
 
 cache = LRUCache(capacity=512)
-downloading = LockTable()
+mutex = LockTable()
 
 
 async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
@@ -38,11 +38,10 @@ async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
             #     # Создаём мьютекс для скачиваемой аудиозаписи.
             #     downloading[track.id] = asyncio.Lock()
             # Ждём когда освободится мьютекс, если аудиозапись уже скачивается.
-            async with downloading[track.id]:
+            async with mutex(track.id):
                 # Проверяем кэш - вдруг пока мы ждали мьютекс,
                 # нужная аудиозапись уже загрузилась в другой таске.
                 if track.id in cache:
-                    del downloading[track.id]
                     return cache[track.id]
                 file_id = await uploader(track, music, bot)
                 insert_track_stmt = insert(sc.tracks).values({
@@ -62,5 +61,4 @@ async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
                     ))
                 # Не забываем кэшировать.
                 cache[track.id] = file_id
-                del downloading[track.id]
         return file_id
