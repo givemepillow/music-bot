@@ -1,17 +1,15 @@
-import asyncio
-
 from aiogram import Bot
 from aiovkmusic import Track, Music
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
-from app.core.services import LRUCache
+from app.core.services import LRUCache, LockTable
 from app.core.services.upload import uploader
 from app.db import schema as sc
 from app.db.orm import Session
 
 cache = LRUCache(capacity=512)
-downloading = LRUCache(capacity=24)
+downloading = LockTable()
 
 
 async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
@@ -36,14 +34,15 @@ async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
                 cache[track.id] = file_id
                 return file_id
             # Проверяем не скачивается ли в данный момент нужная нам аудиозапись.
-            if track.id not in downloading:
-                # Создаём мьютекс для скачиваемой аудиозаписи.
-                downloading[track.id] = asyncio.Lock()
+            # if track.id not in downloading:
+            #     # Создаём мьютекс для скачиваемой аудиозаписи.
+            #     downloading[track.id] = asyncio.Lock()
             # Ждём когда освободится мьютекс, если аудиозапись уже скачивается.
             async with downloading[track.id]:
                 # Проверяем кэш - вдруг пока мы ждали мьютекс,
                 # нужная аудиозапись уже загрузилась в другой таске.
                 if track.id in cache:
+                    del downloading[track.id]
                     return cache[track.id]
                 file_id = await uploader(track, music, bot)
                 insert_track_stmt = insert(sc.tracks).values({
@@ -63,4 +62,5 @@ async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
                     ))
                 # Не забываем кэшировать.
                 cache[track.id] = file_id
+                del downloading[track.id]
         return file_id
