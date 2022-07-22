@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.types import CallbackQuery
 
 from app.core.handlers.base import playlists
+from app.core.handlers.templates import show_playlists
 from app.core.loader import bot, dp
 from app.core.markups.inline import PlaylistsMarkup, SearchResultsMarkup
 from app.core.services import MusicSearcher
