@@ -38,7 +38,7 @@ async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
             #     # Создаём мьютекс для скачиваемой аудиозаписи.
             #     downloading[track.id] = asyncio.Lock()
             # Ждём когда освободится мьютекс, если аудиозапись уже скачивается.
-            async with mutex(track.id):
+            async with await mutex(track.id):
                 # Проверяем кэш - вдруг пока мы ждали мьютекс,
                 # нужная аудиозапись уже загрузилась в другой таске.
                 if track.id in cache:
