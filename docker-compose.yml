@@ -3,7 +3,7 @@ services:
   bot:
     build: .
     container_name: music-bot
-    image: music-bot:0.2.2
+    image: music-bot:0.2.3
     environment:
       VK_LINK: ${VK_LINK}
       VK_ACC: ${VK_ACC}

@@ -24,3 +24,7 @@ All notable changes to this project will be documented in this file.
 ## 0.2.2
 
 - Рефакторинг.
+
+## 0.2.3
+
+- Улучшена логика и производительность загрузки треков.
