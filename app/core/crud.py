@@ -16,18 +16,19 @@ class CRUD:
 
     async def add_track(self, track_id, file_id, title, artist, duration, cover_url, url):
         async with self.session() as s:
-            insert_track_stmt = insert(sc.tracks).values({
-                'id': track_id,
-                'file_id': file_id,
-                'title': title,
-                'artist': artist,
-                'duration': duration,
-                'cover_url': cover_url,
-                'url': url
-            })
-            await s.execute(
-                insert_track_stmt.
-                on_conflict_do_update(
-                    index_elements=['id'],
-                    set_=insert_track_stmt.excluded
-                ))
+            async with s.begin():
+                insert_track_stmt = insert(sc.tracks).values({
+                    'id': track_id,
+                    'file_id': file_id,
+                    'title': title,
+                    'artist': artist,
+                    'duration': duration,
+                    'cover_url': cover_url,
+                    'url': url
+                })
+                await s.execute(
+                    insert_track_stmt.
+                    on_conflict_do_update(
+                        index_elements=['id'],
+                        set_=insert_track_stmt.excluded
+                    ))
