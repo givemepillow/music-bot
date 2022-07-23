@@ -3,13 +3,13 @@ from aiovkmusic import Track, Music
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
-from app.core.services import LRUCache, LockTable
+from app.core.services import LRUCache, LockPool
 from app.core.services.upload import uploader
 from app.db import schema as sc
 from app.db.orm import Session
 
 cache = LRUCache(capacity=512)
-mutex = LockTable()
+mutex = LockPool()
 
 
 async def get_file_id(track: Track, music: Music, bot: Bot) -> str:
