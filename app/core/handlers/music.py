@@ -17,5 +17,8 @@ async def music_sender(callback_query: CallbackQuery, callback_data: dict):
     user_id = callback_query.from_user.id
     await bot.send_chat_action(chat_id=user_id, action='upload_audio')
     track_id = int(callback_data['item_id'])
-    file_id = await manager.get_file_id(registry[user_id].get(track_id), music, bot, crud)
-    await callback_query.message.answer_audio(file_id)
+    try:
+        file_id = await manager.get_file_id(registry[user_id].get(track_id), music, bot, crud)
+        await callback_query.message.answer_audio(file_id)
+    except KeyError:
+        await callback_query.answer()
