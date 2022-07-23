@@ -1,7 +1,10 @@
+from app.core.crud import CRUD
 from app.core.loader import music
 from app.core.services import *
 from app.core.states import States
 from app.db.orm import Session
+
+crud = CRUD(Session)
 
 playlists = Playlists()
 
