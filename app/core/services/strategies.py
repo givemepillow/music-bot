@@ -25,7 +25,7 @@ class GlobalMusic:
 
 class LocalMusic:
     ru = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
-    delimiters = {'  ', '-', '_', '!', '.', '*', '/', '+', '(', ')'}
+    delimiters = {'  ', '-', '!', '.', '*', '/', '+', '(', ')'}
     dualities = set('zsckiy')
 
     def __init__(self, session):
@@ -69,7 +69,7 @@ class LocalMusic:
 
     def _duality(self, text):
         _text = ''.join([ch if ch not in self.dualities else '_' for ch in text]).strip()
-        return text if _text.count('_') == len(_text) else _text
+        return text if len(set(self._remove_delimiters(_text).replace(' ', ''))) == 1 else _text
 
     def _name_patterns(self, name: str):
         is_ru = not self.ru.isdisjoint(name.lower())
