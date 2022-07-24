@@ -44,7 +44,7 @@ async def playlists(callback_query: CallbackQuery):
     registry[user_id] = viewer
     ResultsMarkup.setup(viewer=viewer, user_id=user_id, description=playlist_description)
     _message = await callback_query.message.answer(
-        text='plays',
+        text='Ваши плейлисты:',
         reply_markup=ResultsMarkup.markup(user_id),
         parse_mode="HTML"
     )
