@@ -91,7 +91,7 @@ class LocalMusic:
 
     def _statement_builder(self, name):
         params = self._name_patterns(name)
-        conditions = []
+        conditions = [(schema.tracks.c.artist + ' - ' + schema.tracks.c.title).ilike(f'%{name}%')]
         for p in params:
             conditions.append((schema.tracks.c.artist + ' ' + schema.tracks.c.title)
                               .ilike(f'%{p}%'))
