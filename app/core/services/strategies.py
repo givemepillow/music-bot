@@ -1,5 +1,6 @@
 from aiovkmusic import Track
-from sqlalchemy import select
+from sqlalchemy import select, or_
+import transliterate
 
 from app.db import schema
 
@@ -23,6 +24,10 @@ class GlobalMusic:
 
 
 class LocalMusic:
+    ru = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
+    delimiters = {'  ', '-', '_', '!', '.', '*', '/', '+', '(', ')'}
+    dualities = set('zsckiy')
+
     def __init__(self, session):
         self.session = session
 
@@ -43,9 +48,8 @@ class LocalMusic:
 
     async def get_tracks_by_name(self, name: str):
         async with self.session() as s:
-            result_rows = [dict(row) for row in (await s.execute(
-                select(schema.tracks).where((schema.tracks.c.artist + ' - ' + schema.tracks.c.title).ilike(f'%{name}%'))
-            )).all()]
+            stmt = self._statement_builder(name)
+            result_rows = [dict(row) for row in (await s.execute(stmt)).all()]
             results = [
                 Track(
                     id=track['id'],
@@ -59,6 +63,39 @@ class LocalMusic:
                 for track in result_rows
             ]
         return results
+
+    def _remove_delimiters(self, text):
+        return ''.join([ch if ch not in self.delimiters else ' ' for ch in text]).strip()
+
+    def _duality(self, text):
+        _text = ''.join([ch if ch not in self.dualities else '_' for ch in text]).strip()
+        return text if _text.count('_') == len(_text) else _text
+
+    def _name_patterns(self, name: str):
+        is_ru = not self.ru.isdisjoint(name.lower())
+        transliterate_name = transliterate.translit(
+            name,
+            language_code='ru',
+            reversed=is_ru
+        )
+        duality_name = self._duality(transliterate_name) if is_ru else self._duality(name)
+        return {
+            name,
+            transliterate_name,
+            duality_name,
+            self._remove_delimiters(name),
+            self._remove_delimiters(transliterate_name),
+            *name.split(),
+            *transliterate_name.split()
+        }
+
+    def _statement_builder(self, name):
+        params = self._name_patterns(name)
+        conditions = []
+        for p in params:
+            conditions.append((schema.tracks.c.artist + ' ' + schema.tracks.c.title)
+                              .ilike(f'%{p}%'))
+        return select(schema.tracks).where(or_(*conditions))
 
 
 class UserMusic:
