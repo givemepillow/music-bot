@@ -1,3 +1,5 @@
+import re
+
 from aiovkmusic import Track
 from sqlalchemy import select, or_
 import transliterate
@@ -62,7 +64,14 @@ class LocalMusic:
                 )
                 for track in result_rows
             ]
+
+        results.sort(key=lambda track: self._sort_condition(name, track), reverse=True)
         return results
+
+    def _sort_condition(self, name, track: Track):
+        _name = ".*" + self._remove_delimiters(name.lower()).replace('\\', '\\\\').replace(' ', r'\s') + ".*"
+        _track = self._remove_delimiters(' '.join((track.artist, track.title)).lower())
+        return bool(re.search(_name, _track))
 
     def _remove_delimiters(self, text):
         return ''.join([ch if ch not in self.delimiters else ' ' for ch in text]).strip()
