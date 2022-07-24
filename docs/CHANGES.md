@@ -28,3 +28,7 @@ All notable changes to this project will be documented in this file.
 ## 0.2.3
 
 - Улучшена логика и производительность загрузки треков.
+
+## 0.2.4
+
+- Улучшен поиск по локальной базе.
