@@ -69,9 +69,9 @@ class LocalMusic:
         return results
 
     def _sort_condition(self, name, track: Track):
-        _name = ".*" + self._remove_delimiters(name.lower()).replace('\\', '\\\\').replace(' ', r'\s') + ".*"
+        patterns = self._remove_delimiters(name.lower()).replace('\\', '\\\\').replace(' ', r'\s').split()
         _track = self._remove_delimiters(' '.join((track.artist, track.title)).lower())
-        return bool(re.search(_name, _track))
+        return all((bool(re.search(f".*{p}.*", _track)) for p in patterns))
 
     def _remove_delimiters(self, text):
         return ''.join([ch if ch not in self.delimiters else ' ' for ch in text]).strip()
