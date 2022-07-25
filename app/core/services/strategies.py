@@ -68,8 +68,8 @@ class LocalMusic:
 
     def _sort_condition(self, name, track: Track):
         patterns = self._remove_delimiters(name.lower()).split()
-        _track = ' '.join((track.artist, track.title)).lower()
-        return sum((p in _track for p in patterns))
+        _track = f" {' '.join((track.artist, track.title)).lower()} "
+        return sum((f" {p} " in _track for p in patterns)), sum((p in _track for p in patterns))
 
     def _remove_delimiters(self, text):
         return ''.join([ch if ch not in self.delimiters else ' ' for ch in text]).strip()
