@@ -1,10 +1,10 @@
 from aiogram import types as tg_types
 from aiovkmusic.exceptions import NonExistentUser
 
-from app.core.extensions import MessageBox
-from app.core.handlers.base import text_builder
+from app.core.extensions import MessageBox, InlineStack
+from app.core.handlers.base import text_builder, searchers, registry
 from app.core.handlers.handlers import MessageHandler
-from app.core.markups.inline import UserProfileMarkup
+from app.core.markups.inline import UserProfileMarkup, ResultsMarkup
 from app.core.services.users import UserStorage
 from app.core.states import States
 
@@ -71,3 +71,17 @@ class UpdateLinkHandler(MessageHandler):
         except NonExistentUser:
             await message.answer(text_builder.incorrect_link())
             await MessageBox.delete_last(self.from_user.id)
+
+
+class ViewHandler(MessageHandler):
+    async def handle(self, message: tg_types.Message, *args, **kwargs):
+        await InlineStack.delete_all(self.from_user.id)
+        viewer = await searchers[self.state](message.text)
+        registry[self.from_user.id] = viewer
+        ResultsMarkup.setup(viewer=viewer, user_id=self.from_user.id, description=text_builder.track_description)
+        _message = await message.answer(
+            text=text_builder.search_results(message.text, self.state, viewer.empty()),
+            reply_markup=ResultsMarkup.markup(self.from_user.id),
+            parse_mode="HTML"
+        )
+        InlineStack.put(_message, self.from_user.id)

@@ -3,8 +3,9 @@ import warnings
 
 import loguru
 
-from app.core.handlers import dp as dispatcher
 from app.core.loader import bot_engine
+from app.core.loader import dp
+from app.core.handlers.registry import setup_handlers
 
 warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 loguru.logger.remove()
@@ -15,10 +16,11 @@ loguru.logger.add(
 )
 
 if __name__ == '__main__':
+    setup_handlers(dp)
     loguru.logger.info(
-        f"Number of message handlers: {len(dispatcher.message_handlers.handlers)}."
+        f"Number of message handlers: {len(dp.message_handlers.handlers)}."
     )
     loguru.logger.info(
-        f"Number of callback query handlers: {len(dispatcher.callback_query_handlers.handlers)}."
+        f"Number of callback query handlers: {len(dp.callback_query_handlers.handlers)}."
     )
     bot_engine.start()

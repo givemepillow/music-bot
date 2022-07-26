@@ -2,7 +2,9 @@ import abc
 from typing import Optional
 
 from aiogram import types as tg_types
+from aiogram.dispatcher import FSMContext
 
+from app.core.extensions import InlineStack
 from app.utils import Singleton
 
 
@@ -12,8 +14,10 @@ class Handler(Singleton):
 
 
 class MessageHandler(Handler, abc.ABC):
-    async def __call__(self, message: tg_types.Message, *args, **kwargs):
+    async def __call__(self, message: tg_types.Message, state: FSMContext, *args, **kwargs):
+        await InlineStack.delete_all(message.from_user.id)
         self.from_user = message.from_user
+        self.state = await state.get_state()
         await self.handle(message, *args, **kwargs)
 
     @abc.abstractmethod
