@@ -5,7 +5,7 @@ from app.core.loader import dp
 
 
 @dp.message_handler(chat_type=[types.ChatType.PRIVATE])
-async def start_handler(message: Message):
+async def plug_message_handler(message: Message):
     await message.answer(
         text='Ничего не понятно – может быть вы хотели найти какую-нибудь аудиозапись <b>/start</b>?',
         parse_mode='HTML'
@@ -13,5 +13,5 @@ async def start_handler(message: Message):
 
 
 @dp.callback_query_handler(text=['_'], state='*')
-async def plug(callback_query: CallbackQuery):
+async def plug_callback_query_handler(callback_query: CallbackQuery):
     await callback_query.answer()

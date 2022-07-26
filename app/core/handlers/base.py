@@ -1,20 +1,20 @@
 from app.core.crud import CRUD
+from app.core.handlers.text import TextBuilder
 from app.core.loader import music
 from app.core.services import *
 from app.core.states import States
 from app.db.orm import Session
 
 crud = CRUD(Session)
-
 playlists = Playlists()
+
+text_builder = TextBuilder()
 
 local_music = LocalMusic(Session)
 global_music = GlobalMusic(music)
 user_music = UserMusic()
 user_playlists = UserPlaylists()
 playlist_music = PlaylistMusic(music)
-
-music_history = LRUCache(capacity=512)
 
 viewers = {
     'local_music': lambda q: Viewer().make(local_music, q),

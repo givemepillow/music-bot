@@ -3,8 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from app.core.extensions import MessageBox
-from app.core.handlers.base import viewers, registry, searchers
-from app.core.handlers.templates import search_message_builder, track_description, playlist_description
+from app.core.handlers.base import viewers, registry, searchers, text_builder
 from app.core.loader import dp
 from app.core.markups.inline import *
 from app.core.services.users import UserStorage
@@ -21,9 +20,9 @@ async def view(message: Message, state: FSMContext):
     current_state = await state.get_state()
     viewer = await searchers[current_state](message.text)
     registry[_user_id] = viewer
-    ResultsMarkup.setup(viewer=viewer, user_id=_user_id, description=track_description)
+    ResultsMarkup.setup(viewer=viewer, user_id=_user_id, description=text_builder.track_description)
     _message = await message.answer(
-        text=search_message_builder(message.text, current_state, viewer.empty()),
+        text=text_builder.search_results(message.text, current_state, viewer.empty()),
         reply_markup=ResultsMarkup.markup(_user_id),
         parse_mode="HTML"
     )
@@ -42,9 +41,9 @@ async def playlists(callback_query: CallbackQuery):
     user_music = await UserStorage.get_music(user_id)
     viewer = await viewers['user_playlists'](user_music)
     registry[user_id] = viewer
-    ResultsMarkup.setup(viewer=viewer, user_id=user_id, description=playlist_description)
+    ResultsMarkup.setup(viewer=viewer, user_id=user_id, description=text_builder.playlist_description)
     _message = await callback_query.message.answer(
-        text='plays',
+        text='<b>Плейлисты:</b>',
         reply_markup=ResultsMarkup.markup(user_id),
         parse_mode="HTML"
     )
@@ -59,7 +58,7 @@ async def user_tracks(callback_query: CallbackQuery):
     music = await UserStorage.get_music(user_id)
     viewer = await viewers['user_music'](music)
     registry[user_id] = viewer
-    ResultsMarkup.setup(viewer=viewer, user_id=user_id, description=track_description)
+    ResultsMarkup.setup(viewer=viewer, user_id=user_id, description=text_builder.track_description)
     _message = await callback_query.message.answer(
         text='Аудиозаписей нет :(' if viewer.empty() else 'Ваши <b>аудиозаписи</b>:',
         reply_markup=ResultsMarkup.markup(user_id),
@@ -88,7 +87,7 @@ async def playlist_tracks(callback_query: CallbackQuery, callback_data: dict):
     playlist = registry[_user_id].get(playlist_id)
     viewer = await viewers['playlist_music'](playlist)
     registry[_user_id] = viewer
-    ResultsMarkup.setup(viewer=viewer, user_id=_user_id, description=track_description)
+    ResultsMarkup.setup(viewer=viewer, user_id=_user_id, description=text_builder.track_description)
     _text = ''
     if not viewer.empty():
         _text = f'Треки из плейлиста <b>«{playlist.title}»</b>:'
