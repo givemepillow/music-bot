@@ -21,13 +21,13 @@ def upgrade() -> None:
         'tracks', 'url',
         existing_type=sa.String(length=150),
         type_=sa.String(length=250),
-        existing_nullable=False
+        existing_nullable=True
     )
     op.alter_column(
         'tracks', 'cover_url',
         existing_type=sa.String(length=150),
         type_=sa.String(length=250),
-        existing_nullable=False
+        existing_nullable=True
     )
     # ### end Alembic commands ###
 
@@ -38,12 +38,12 @@ def downgrade() -> None:
         'tracks', 'url',
         existing_type=sa.String(length=250),
         type_=sa.String(length=150),
-        existing_nullable=False
+        existing_nullable=True
     )
     op.alter_column(
         'tracks', 'cover_url',
         existing_type=sa.String(length=250),
         type_=sa.String(length=150),
-        existing_nullable=False
+        existing_nullable=True
     )
     # ### end Alembic commands ###

@@ -25,7 +25,7 @@ class GlobalMusic:
 
 class LocalMusic:
     ru = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
-    delimiters = {'  ', '-', '_', '!', '.', '*', '/', '+', '(', ')'}
+    delimiters = {'  ', '-', '!', '.', '*', '/', '+', '(', ')'}
     dualities = set('zsckiy')
 
     def __init__(self, session):
@@ -62,14 +62,21 @@ class LocalMusic:
                 )
                 for track in result_rows
             ]
+
+        results.sort(key=lambda track: self._sort_condition(name, track), reverse=True)
         return results
+
+    def _sort_condition(self, name, track: Track):
+        patterns = self._remove_delimiters(name.lower()).split()
+        _track = f" {' '.join((track.artist, track.title)).lower()} "
+        return sum((f" {p} " in _track for p in patterns)), sum((p in _track for p in patterns))
 
     def _remove_delimiters(self, text):
         return ''.join([ch if ch not in self.delimiters else ' ' for ch in text]).strip()
 
     def _duality(self, text):
         _text = ''.join([ch if ch not in self.dualities else '_' for ch in text]).strip()
-        return text if _text.count('_') == len(_text) else _text
+        return text if len(set(self._remove_delimiters(_text).replace(' ', ''))) == 1 else _text
 
     def _name_patterns(self, name: str):
         is_ru = not self.ru.isdisjoint(name.lower())

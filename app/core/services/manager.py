@@ -40,7 +40,7 @@ async def get_file_id(track: Track, music: Music, bot: Bot, crud: CRUD) -> str:
             artist=track.artist,
             duration=track.duration,
             cover_url=track.cover_url,
-            url=track.cover_url
+            url=track.url
         )
         # Не забываем кэшировать.
         cache[track.id] = file_id
