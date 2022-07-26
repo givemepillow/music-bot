@@ -48,7 +48,7 @@ class LocalMusic:
 
     async def get_tracks_by_name(self, name: str):
         async with self.session() as s:
-            stmt = self._statement_builder(name)
+            stmt = self._statement_builder(name.replace('_', ' '))
             result_rows = [dict(row) for row in (await s.execute(stmt)).all()]
             results = [
                 Track(
