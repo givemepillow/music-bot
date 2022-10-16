@@ -1,3 +1,4 @@
+import loguru
 from aiogram import types as tg_types
 from aiovkmusic.exceptions import NonExistentUser
 
@@ -85,3 +86,6 @@ class ViewHandler(MessageHandler):
             parse_mode="HTML"
         )
         InlineStack.put(_message, self.from_user.id)
+        loguru.logger.info(
+            f"New search '{message.text}' from telegram user {self.from_user.first_name} {self.from_user.id}."
+        )

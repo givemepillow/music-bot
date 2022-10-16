@@ -5,8 +5,6 @@ from app.core.loader import bot
 
 
 class InlineStack(MessageBox):
-    pass
-
     @classmethod
     async def delete_all(cls, user_id: int):
         try:

@@ -16,14 +16,14 @@ class LRUCache:
         self.cache = OrderedDict()
         self.capacity = capacity
 
-    def __getitem__(self, key: int) -> int:
+    def __getitem__(self, key: int) -> str:
         """
         При получении элемента, передвигаем его в конец.
         """
         self.cache.move_to_end(key)
         return self.cache[key]
 
-    def __setitem__(self, key: int, value: int) -> None:
+    def __setitem__(self, key: int, value: str) -> None:
         """
         При сохранении элемента, также передвигаем его в конец.
         Если элементов больше вместимости - удаляем половину от начала.
